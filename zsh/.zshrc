@@ -53,17 +53,9 @@ fi
 # Local machine-specific values (secrets, tokens, host-only paths)
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# Auto-start tmux for interactive local terminals when enabled.
-if [[ "${AUTO_TMUX:-0}" == "1" ]] && [[ -o interactive ]] && command -v tmux >/dev/null 2>&1 && [[ -z "$TMUX" ]] && [[ -z "$SSH_CONNECTION" ]]; then
-  SESSION_NAME="term-$(date +%s%N | cut -c1-13)"
-  tmux new-session -d -s "$SESSION_NAME" -n code
-  tmux new-window -t "$SESSION_NAME":2 -n codex
-  tmux new-window -t "$SESSION_NAME":3 -n terminal
-  if command -v btop >/dev/null 2>&1; then
-    tmux new-window -t "$SESSION_NAME":4 -n monitoring "btop"
-  else
-    tmux new-window -t "$SESSION_NAME":4 -n monitoring
+# Auto-start your default tmux workspace for local interactive terminals.
+if [[ "${AUTO_TMUX:-1}" == "1" ]] && [[ -o interactive ]] && command -v tmux >/dev/null 2>&1 && [[ -z "$TMUX" ]] && [[ -z "$SSH_CONNECTION" ]]; then
+  if command -v start-tmux-workspace >/dev/null 2>&1; then
+    exec start-tmux-workspace
   fi
-  tmux new-window -t "$SESSION_NAME":5 -n misc
-  exec tmux attach -t "$SESSION_NAME"
 fi

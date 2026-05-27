@@ -28,7 +28,8 @@ bash install.sh
 - `install.sh` creates timestamped backups before linking files.
 - `install.sh` installs OpenCode using the official `https://opencode.ai/install` script.
 - Your Oh My Posh theme is tracked in `omp-config/myconfig.json` and linked to `~/omp-config/myconfig.json` during install.
+- Your tmux workspace launcher is installed as `start-tmux-workspace` and zsh auto-starts it by default on local terminals.
 - Put secrets and machine-specific values in `~/.zshrc.local`.
 - Example local file: `zsh/.zshrc.local.example`.
-- Enable auto tmux startup by setting `AUTO_TMUX=1` in `~/.zshrc.local` if you want it.
+- Disable auto tmux startup by setting `AUTO_TMUX=0` in `~/.zshrc.local` if you want it.
 - After install, restart shell or run `exec zsh`.

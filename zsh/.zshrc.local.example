@@ -7,5 +7,5 @@
 # Example host-specific paths
 # export PATH="$HOME/custom/bin:$PATH"
 
-# Enable auto-start tmux on local interactive terminals
-# export AUTO_TMUX=1
+# Disable auto-start tmux on local interactive terminals
+# export AUTO_TMUX=0
