@@ -1,0 +1,11 @@
+# Copy this file to ~/.zshrc.local and add machine-specific values.
+# This file is not meant to be committed.
+
+# Example secret
+# export HF_TOKEN="your_token_here"
+
+# Example host-specific paths
+# export PATH="$HOME/custom/bin:$PATH"
+
+# Enable auto-start tmux on local interactive terminals
+# export AUTO_TMUX=1

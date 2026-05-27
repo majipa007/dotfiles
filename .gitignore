@@ -1,0 +1,22 @@
+*.swp
+*.swo
+.DS_Store
+
+# Local overrides / secrets
+zsh/.zshrc.local
+*.local
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.secret
+
+# Runtime/cache artifacts
+node_modules/
+.cache/
+.local/
+.idea/
+Thumbs.db
