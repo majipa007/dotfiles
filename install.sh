@@ -111,6 +111,15 @@ install_oh_my_posh() {
   fi
 }
 
+install_opencode() {
+  if ! command -v opencode >/dev/null 2>&1; then
+    log "Installing OpenCode"
+    curl -fsSL https://opencode.ai/install | bash
+  else
+    log "OpenCode already installed"
+  fi
+}
+
 install_tpm() {
   if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
     log "Installing TPM"
@@ -146,6 +155,7 @@ main() {
   install_latest_neovim
   install_oh_my_zsh
   install_oh_my_posh
+  install_opencode
   install_tpm
 
   log "Linking dotfiles"
