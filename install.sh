@@ -104,6 +104,7 @@ install_oh_my_zsh() {
 install_oh_my_posh() {
   if ! command -v oh-my-posh >/dev/null 2>&1; then
     log "Installing Oh My Posh"
+    mkdir -p "$HOME/.local/bin"
     curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
   else
     log "Oh My Posh already installed"
