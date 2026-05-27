@@ -178,6 +178,7 @@ main() {
   set_default_shell
 
   log "Done. Restart terminal or run: exec zsh"
+  printf "sh setup completed\n"
 }
 
 main "$@"
