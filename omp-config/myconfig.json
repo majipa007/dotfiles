@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "alignment": "left",
+      "segments": [
+        {
+          "style": "plain",
+          "template": "╭─ <#00ffff>\udb84\udf62 </><#ffffff>─</>",
+          "type": "session"
+        },
+        {
+          "foreground": "#ff5555",
+          "style": "plain",
+          "template": "<#ffffff>[</><#00ffff>{{ .Folder }}<#ffffff>]</>",
+          "type": "path"
+        },
+        {
+          "foreground": "#FFE873",
+          "style": "plain",
+          "template": "<#ffffff>─[</><#00ffff>{{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }}{{ end }}{{ end }}<#ffffff>]</>",
+          "type": "python"
+        },
+        {
+          "type": "git",
+          "style": "plain",
+          "foreground": "#00ffff",
+          "template": "{{ if .HEAD }}<#ffffff>─[</>{{ .HEAD }}{{ if .Working.Changed }} <#ff9800>~{{ .Working.Changed }}</>{{ end }}{{ if .Staging.Changed }} <#00ff00>+{{ .Staging.Changed }}</>{{ end }}{{ if .Working.Deleted }} <#ff0000>-{{ .Working.Deleted }}</>{{ end }}{{ if .Working.Untracked }} <#ff00ff>?{{ .Working.Untracked }}</>{{ end }}<#ffffff>]</>{{ end }}"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "style": "plain",
+          "template": "╰─",
+          "type": "text"
+        },
+        {
+          "foreground": "#ecf7fa",
+          "foreground_templates": ["{{ if gt .Code 0 }}#ef5350{{ end }}"],
+          "properties": {
+            "always_enabled": true
+          },
+          "style": "plain",
+          "template": "\ue285",
+          "type": "status"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "version": 3
+}

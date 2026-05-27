@@ -151,6 +151,8 @@ main() {
   link_file "$ROOT_DIR/zsh/.zshrc" "$HOME/.zshrc"
   link_file "$ROOT_DIR/zsh/.zprofile" "$HOME/.zprofile"
   link_file "$ROOT_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+  mkdir -p "$HOME/omp-config"
+  link_file "$ROOT_DIR/omp-config/myconfig.json" "$HOME/omp-config/myconfig.json"
 
   mkdir -p "$HOME/.config"
   link_file "$ROOT_DIR/nvim" "$HOME/.config/nvim"

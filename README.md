@@ -10,7 +10,7 @@ This repository bootstraps:
 ## Quick setup
 
 ```bash
-git clone <your-repo-url> ~/dotfiles
+git clone git@github.com:majipa007/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 bash install.sh
 ```
@@ -18,6 +18,7 @@ bash install.sh
 ## Notes
 
 - `install.sh` creates timestamped backups before linking files.
+- Your Oh My Posh theme is tracked in `omp-config/myconfig.json` and linked to `~/omp-config/myconfig.json` during install.
 - Put secrets and machine-specific values in `~/.zshrc.local`.
 - Example local file: `zsh/.zshrc.local.example`.
 - Enable auto tmux startup by setting `AUTO_TMUX=1` in `~/.zshrc.local` if you want it.
