@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SESSION_NAME="main"
-
-if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-  exec tmux attach-session -t "$SESSION_NAME"
-fi
+SESSION_NAME="term-$(date +%s%N | cut -c1-13)"
 
 tmux new-session -d -s "$SESSION_NAME" -n code
 tmux new-window -t "$SESSION_NAME":2 -n codex
