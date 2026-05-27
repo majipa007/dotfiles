@@ -15,6 +15,14 @@ cd ~/dotfiles
 bash install.sh
 ```
 
+HTTPS clone:
+
+```bash
+git clone https://github.com/majipa007/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+bash install.sh
+```
+
 ## Notes
 
 - `install.sh` creates timestamped backups before linking files.
