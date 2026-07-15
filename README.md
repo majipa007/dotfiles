@@ -1,5 +1,7 @@
 # dotfiles
 
+![dotfiles — one command, whole setup](readme.png)
+
 One-command setup for a fresh Ubuntu/Debian machine: shell, terminal
 multiplexer, editor, and AI coding tools — all symlinked back to this repo so
 your config stays in version control.
