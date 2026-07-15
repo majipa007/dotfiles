@@ -6,6 +6,7 @@ This repository bootstraps:
 - tmux + TPM + tmux plugins
 - latest Neovim + LazyVim config
 - OpenCode CLI + baseline config
+- Claude Code CLI
 
 ## Quick setup
 
@@ -22,6 +23,24 @@ git clone https://github.com/majipa007/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 bash install.sh
 ```
+
+The installer asks which components to install (Enter = all). Pass `--all`
+(or `-y`) to skip every prompt and install everything, e.g. for unattended
+setups. Non-interactive runs (like `curl | bash`) also default to everything.
+
+## Tmux workspace tabs
+
+If tmux is selected, the installer asks whether to keep the default tabs
+(`code`, `codex` running opencode, `claude` running claude, `terminal`,
+`monitoring` running btop, `misc`) or define your own — each tab is
+`name` or `name:command`.
+
+Custom tabs are written to `~/.tmux-workspace.conf`, which you can edit any
+time (see `tmux/tmux-workspace.conf.example`). Without that file the launcher
+uses the built-in defaults. Tab commands only run if the binary exists;
+otherwise the tab opens a plain shell. By default the launcher reuses an
+existing `workspace` session instead of creating a new one per terminal; set
+`attach_existing=0` in the config to always create fresh sessions.
 
 ## Notes
 
