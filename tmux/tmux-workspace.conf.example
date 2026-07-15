@@ -1,0 +1,20 @@
+# Copy this file to ~/.tmux-workspace.conf to customize your tmux workspace.
+# If the file does not exist, the launcher uses its built-in default tabs.
+#
+# Settings:
+#   session_name=workspace      name of the tmux session
+#   attach_existing=1           1 = reuse an existing session, 0 = always create a new one
+#
+# Tabs, one per line, in order:
+#   name            plain shell tab
+#   name:command    tab that starts a command (skipped if the binary is missing)
+
+session_name=workspace
+attach_existing=1
+
+code:
+codex:opencode
+claude:claude
+terminal:
+monitoring:btop
+misc:
