@@ -1,22 +1,21 @@
-# Portable dotfiles (Ubuntu/Debian)
+# dotfiles
 
-This repository bootstraps:
+One-command setup for a fresh Ubuntu/Debian machine: shell, terminal
+multiplexer, editor, and AI coding tools — all symlinked back to this repo so
+your config stays in version control.
 
-- zsh + Oh My Zsh + Oh My Posh
-- tmux + TPM + tmux plugins
-- latest Neovim + LazyVim config
-- OpenCode CLI + baseline config
-- Claude Code CLI
+| Component | What you get |
+|-----------|--------------|
+| **zsh** | Oh My Zsh, autosuggestions, syntax highlighting, Oh My Posh prompt |
+| **tmux** | Custom config, TPM plugins, auto-started workspace with your tabs |
+| **neovim** | Latest stable release + LazyVim configuration |
+| **opencode** | OpenCode CLI with baseline config |
+| **claude** | Claude Code CLI |
 
-## Quick setup
+Base CLI tools (`git`, `curl`, `ripgrep`, `fzf`, `fd`, `btop`, `eza`, …) are
+installed regardless of what you pick.
 
-```bash
-git clone git@github.com:majipa007/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-bash install.sh
-```
-
-HTTPS clone:
+## Install
 
 ```bash
 git clone https://github.com/majipa007/dotfiles.git ~/dotfiles
@@ -24,31 +23,95 @@ cd ~/dotfiles
 bash install.sh
 ```
 
-The installer asks which components to install (Enter = all). Pass `--all`
-(or `-y`) to skip every prompt and install everything, e.g. for unattended
-setups. Non-interactive runs (like `curl | bash`) also default to everything.
+The installer walks you through two questions:
 
-## Tmux workspace tabs
+1. **Which components?** Pick by number, or press Enter for everything.
+2. **Tmux tabs** (if tmux is selected) — keep the defaults or define your own,
+   including a command to launch in each tab.
 
-If tmux is selected, the installer asks whether to keep the default tabs
-(`code`, `codex` running opencode, `claude` running claude, `terminal`,
-`monitoring` running btop, `misc`) or define your own — each tab is
-`name` or `name:command`.
+Everything after that is hands-off. Existing config files are backed up with a
+timestamp (`~/.zshrc.bak.20260715...`) before anything is symlinked.
 
-Custom tabs are written to `~/.tmux-workspace.conf`, which you can edit any
-time (see `tmux/tmux-workspace.conf.example`). Without that file the launcher
-uses the built-in defaults. Tab commands only run if the binary exists;
-otherwise the tab opens a plain shell. By default the launcher reuses an
-existing `workspace` session instead of creating a new one per terminal; set
-`attach_existing=0` in the config to always create fresh sessions.
+### Unattended install
 
-## Notes
+```bash
+bash install.sh --all
+```
 
-- `install.sh` creates timestamped backups before linking files.
-- `install.sh` installs OpenCode using the official `https://opencode.ai/install` script.
-- Your Oh My Posh theme is tracked in `omp-config/myconfig.json` and linked to `~/omp-config/myconfig.json` during install.
-- Your tmux workspace launcher is installed as `start-tmux-workspace` and zsh auto-starts it by default on local terminals.
-- Put secrets and machine-specific values in `~/.zshrc.local`.
-- Example local file: `zsh/.zshrc.local.example`.
-- Disable auto tmux startup by setting `AUTO_TMUX=0` in `~/.zshrc.local` if you want it.
-- After install, restart shell or run `exec zsh`.
+`--all` (or `-y`) skips every prompt and installs everything with defaults.
+Piped runs like `curl ... | bash` behave the same way, so the classic one-shot
+bootstrap still works.
+
+## The tmux workspace
+
+New local terminals automatically drop you into a tmux session with your tabs
+ready to go. The default layout:
+
+| Tab | Name | Runs |
+|-----|------|------|
+| 1 | `code` | shell |
+| 2 | `codex` | `opencode` |
+| 3 | `claude` | `claude` |
+| 4 | `terminal` | shell |
+| 5 | `monitoring` | `btop` |
+| 6 | `misc` | shell |
+
+### Customizing tabs
+
+Tabs live in `~/.tmux-workspace.conf` — created by the installer if you choose
+custom tabs, or copy the template yourself:
+
+```bash
+cp tmux/tmux-workspace.conf.example ~/.tmux-workspace.conf
+```
+
+The format is one tab per line, `name` or `name:command`:
+
+```ini
+session_name=workspace
+attach_existing=1
+
+editor:nvim
+serve:npm run dev
+logs
+monitoring:btop
+```
+
+Good to know:
+
+- If a tab's command isn't installed, the tab opens as a plain shell instead
+  of dying.
+- `attach_existing=1` (default) means new terminals reattach to the existing
+  session rather than spawning a fresh one each time. Set it to `0` for a new
+  session per terminal.
+- No config file at all? The launcher falls back to the default layout above.
+- Edit the file any time — changes apply to the next session you start.
+
+### Opting out
+
+Add `export AUTO_TMUX=0` to `~/.zshrc.local` to stop terminals from
+auto-starting tmux. You can still launch the workspace manually with
+`start-tmux-workspace`.
+
+## Machine-specific config
+
+Secrets, tokens, and host-only paths belong in `~/.zshrc.local` — it's sourced
+by `.zshrc` but never committed. See `zsh/.zshrc.local.example` for a starting
+point.
+
+## Repo layout
+
+```
+install.sh                        installer (interactive or --all)
+zsh/                              .zshrc, .zprofile, .zshrc.local.example
+tmux/                             .tmux.conf, workspace launcher + tab template
+nvim/                             LazyVim config (linked to ~/.config/nvim)
+omp-config/                       Oh My Posh theme
+opencode/                         OpenCode config
+```
+
+## After installing
+
+Restart your terminal or run `exec zsh`. That's it — the shell switches to
+zsh, tmux starts with your tabs, and everything is linked back to this repo,
+so `git pull` updates your config everywhere.
