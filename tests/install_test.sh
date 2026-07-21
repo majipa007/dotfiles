@@ -50,6 +50,10 @@ sel=(1 0 1)
 menu_multiselect "Pick" names descs sel < <(printf '')      # EOF keeps selection
 assert "menu: EOF keeps selection" [ "${sel[0]}${sel[1]}${sel[2]}" = "101" ]
 
+sel=(0 0 0)
+menu_multiselect "Pick" names descs sel < <(printf '\033 \n')  # bare ESC, then space, Enter
+assert "menu: key after bare ESC not swallowed" [ "${sel[0]}${sel[1]}${sel[2]}" = "100" ]
+
 echo "----"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

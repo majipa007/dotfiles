@@ -52,7 +52,7 @@ menu_multiselect() {
   local title="$1"
   local -n _mm_names="$2" _mm_descs="$3" _mm_sel="$4"
   local count="${#_mm_names[@]}"
-  local cur=0 i key key2 mark pointer
+  local cur=0 i key key2 key3 mark pointer
 
   tput civis 2>/dev/null || true
   while true; do
@@ -72,8 +72,16 @@ menu_multiselect() {
     fi
     if [[ "$key" == $'\033' ]]; then
       key2=""
-      read -rsn2 -t 0.05 key2 || true
-      key="esc:$key2"
+      IFS= read -rsn1 -t 0.05 key2 || true
+      if [[ "$key2" == "[" ]]; then
+        key3=""
+        IFS= read -rsn1 -t 0.05 key3 || true
+        key="esc:[$key3"
+      elif [[ -n "$key2" ]]; then
+        key="$key2"   # ESC followed by a normal key: process that key
+      else
+        key="esc:"    # lone ESC: ignore (must NOT fall through to the Enter case)
+      fi
     fi
     case "$key" in
       "esc:[A"|k) cur=$(( (cur - 1 + count) % count )) ;;
