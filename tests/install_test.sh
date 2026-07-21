@@ -54,6 +54,15 @@ sel=(0 0 0)
 menu_multiselect "Pick" names descs sel < <(printf '\033 \n')  # bare ESC, then space, Enter
 assert "menu: key after bare ESC not swallowed" [ "${sel[0]}${sel[1]}${sel[2]}" = "100" ]
 
+# --- Task 3: apply_component_selection ---
+sel=(1 0 1 0 1)
+apply_component_selection sel
+assert "map: zsh on"      [ "$INSTALL_ZSH" -eq 1 ]
+assert "map: tmux off"    [ "$INSTALL_TMUX" -eq 0 ]
+assert "map: nvim on"     [ "$INSTALL_NVIM" -eq 1 ]
+assert "map: opencode off" [ "$INSTALL_OPENCODE" -eq 0 ]
+assert "map: claude on"   [ "$INSTALL_CLAUDE" -eq 1 ]
+
 echo "----"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

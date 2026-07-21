@@ -145,9 +145,31 @@ is_interactive() {
   [[ "${ASSUME_ALL}" -eq 0 ]] && [[ -t 0 ]]
 }
 
-select_components() {
-  is_interactive || return 0
+COMPONENT_NAMES=(zsh tmux neovim opencode claude)
+COMPONENT_DESCS=(
+  "Oh My Zsh, plugins, Oh My Posh prompt"
+  "config, TPM plugins, workspace tabs"
+  "latest release + LazyVim config"
+  "OpenCode CLI"
+  "Claude Code CLI"
+)
 
+apply_component_selection() {
+  local -n _cs_sel="$1"
+  INSTALL_ZSH="${_cs_sel[0]}"
+  INSTALL_TMUX="${_cs_sel[1]}"
+  INSTALL_NVIM="${_cs_sel[2]}"
+  INSTALL_OPENCODE="${_cs_sel[3]}"
+  INSTALL_CLAUDE="${_cs_sel[4]}"
+}
+
+select_components_menu() {
+  local sel=(1 1 1 1 1)
+  menu_multiselect "Select components to install" COMPONENT_NAMES COMPONENT_DESCS sel
+  apply_component_selection sel
+}
+
+select_components_basic() {
   cat <<'EOF'
 
 Select components to install:
@@ -177,6 +199,15 @@ EOF
       *) log "Ignoring unknown selection: $token" ;;
     esac
   done
+}
+
+select_components() {
+  is_interactive || return 0
+  if [[ "$TUI" -eq 1 ]]; then
+    select_components_menu
+  else
+    select_components_basic
+  fi
 }
 
 configure_tmux_tabs() {
