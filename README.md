@@ -25,14 +25,14 @@ cd ~/dotfiles
 bash install.sh
 ```
 
-The installer walks you through two questions:
+The installer is a guided TUI: pick components with arrow keys and space,
+customize your tmux tabs, review a summary, then watch each step complete
+with a ✓. Full command output goes to `/tmp/dotfiles-install.log`; on
+failure the last lines are shown automatically.
 
-1. **Which components?** Pick by number, or press Enter for everything.
-2. **Tmux tabs** (if tmux is selected) — keep the defaults or define your own,
-   including a command to launch in each tab.
-
-Everything after that is hands-off. Existing config files are backed up with a
-timestamp (`~/.zshrc.bak.20260715...`) before anything is symlinked.
+Plain terminals (or `NO_COLOR=1`) get simple numbered prompts instead.
+Existing config files are still backed up with a timestamp before anything
+is symlinked.
 
 ### Unattended install
 
