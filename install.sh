@@ -210,36 +210,8 @@ select_components() {
   fi
 }
 
-configure_tmux_tabs() {
-  is_interactive || return 0
-
-  cat <<'EOF'
-
-Default tmux workspace tabs:
-  code, codex (opencode), claude (claude), terminal, monitoring (btop), misc
-EOF
-  printf "Use default tabs? [Y/n]: "
-  local answer
-  read -r answer
-  case "$answer" in
-    n|N|no|NO) ;;
-    *) return 0 ;;
-  esac
-
-  log "Define your tabs. Format: name or name:command. Empty line to finish."
-  local tabs=() line
-  while true; do
-    printf "Tab %d: " "$(( ${#tabs[@]} + 1 ))"
-    read -r line
-    [[ -z "$line" ]] && break
-    tabs+=("$line")
-  done
-
-  if [[ ${#tabs[@]} -eq 0 ]]; then
-    log "No tabs entered; keeping defaults"
-    return 0
-  fi
-
+write_tab_config() {
+  local -n _wt_tabs="$1"
   local config="$HOME/.tmux-workspace.conf"
   backup_file "$config"
   {
@@ -248,11 +220,43 @@ EOF
     echo "session_name=workspace"
     echo "attach_existing=1"
     local tab
-    for tab in "${tabs[@]}"; do
+    for tab in "${_wt_tabs[@]}"; do
       echo "$tab"
     done
   } > "$config"
   log "Wrote $config"
+}
+
+configure_tmux_tabs() {
+  is_interactive || return 0
+
+  printf '\n%sDefault tmux workspace tabs%s\n' "$C_BOLD" "$C_RESET"
+  printf '  %s1%s code        %sshell%s\n'      "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '  %s2%s codex       %sopencode%s\n'   "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '  %s3%s claude      %sclaude%s\n'     "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '  %s4%s terminal    %sshell%s\n'      "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '  %s5%s monitoring  %sbtop%s\n'       "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '  %s6%s misc        %sshell%s\n'      "$C_CYAN" "$C_RESET" "$C_DIM" "$C_RESET"
+
+  if confirm "Use these default tabs"; then
+    return 0
+  fi
+
+  printf '\n%sDefine your tabs.%s Format: %sname%s or %sname:command%s. Empty line to finish.\n' \
+    "$C_BOLD" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET"
+  local tabs=() line
+  while true; do
+    printf '  %sTab %d:%s ' "$C_CYAN" "$(( ${#tabs[@]} + 1 ))" "$C_RESET"
+    read -r line || line=""
+    [[ -z "$line" ]] && break
+    tabs+=("$line")
+  done
+
+  if [[ ${#tabs[@]} -eq 0 ]]; then
+    log "No tabs entered; keeping defaults"
+    return 0
+  fi
+  write_tab_config tabs
 }
 
 install_base_packages() {

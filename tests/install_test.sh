@@ -63,6 +63,15 @@ assert "map: nvim on"     [ "$INSTALL_NVIM" -eq 1 ]
 assert "map: opencode off" [ "$INSTALL_OPENCODE" -eq 0 ]
 assert "map: claude on"   [ "$INSTALL_CLAUDE" -eq 1 ]
 
+# --- Task 4: write_tab_config ---
+export HOME="$(mktemp -d)"
+tabs=("editor:nvim" "logs" "mon:btop")
+write_tab_config tabs
+assert "tab config written" [ -f "$HOME/.tmux-workspace.conf" ]
+assert "tab config has command tab" grep -q '^editor:nvim$' "$HOME/.tmux-workspace.conf"
+assert "tab config has plain tab" grep -q '^logs$' "$HOME/.tmux-workspace.conf"
+assert "tab config has session name" grep -q '^session_name=workspace$' "$HOME/.tmux-workspace.conf"
+
 echo "----"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]
