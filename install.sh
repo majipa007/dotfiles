@@ -210,6 +210,34 @@ select_components() {
   fi
 }
 
+summary_line() {
+  local enabled="$1" name="$2"
+  if [[ "$enabled" -eq 1 ]]; then
+    printf '  %s✓%s %s\n' "$C_GREEN" "$C_RESET" "$name"
+  else
+    printf '  %s-%s %s%s (skipped)%s\n' "$C_DIM" "$C_RESET" "$C_DIM" "$name" "$C_RESET"
+  fi
+}
+
+show_summary() {
+  is_interactive || return 0
+  printf '\n%sReady to install%s\n' "$C_BOLD" "$C_RESET"
+  summary_line "$INSTALL_ZSH" "zsh + Oh My Zsh + Oh My Posh"
+  summary_line "$INSTALL_TMUX" "tmux + TPM + workspace"
+  summary_line "$INSTALL_NVIM" "Neovim + LazyVim"
+  summary_line "$INSTALL_OPENCODE" "OpenCode CLI"
+  summary_line "$INSTALL_CLAUDE" "Claude Code CLI"
+  if [[ "$INSTALL_TMUX" -eq 1 ]]; then
+    if [[ -f "$HOME/.tmux-workspace.conf" ]]; then
+      printf '  %s✓%s tmux tabs: %s~/.tmux-workspace.conf%s\n' "$C_GREEN" "$C_RESET" "$C_CYAN" "$C_RESET"
+    else
+      printf '  %s✓%s tmux tabs: defaults\n' "$C_GREEN" "$C_RESET"
+    fi
+  fi
+  printf '\n'
+  confirm "Proceed"
+}
+
 write_tab_config() {
   local -n _wt_tabs="$1"
   local config="$HOME/.tmux-workspace.conf"
@@ -398,6 +426,11 @@ main() {
   select_components
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
     configure_tmux_tabs
+  fi
+
+  if ! show_summary; then
+    log "Aborted. Nothing was installed."
+    exit 0
   fi
 
   install_base_packages
