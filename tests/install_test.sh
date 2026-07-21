@@ -23,8 +23,9 @@ assert "NO_COLOR disables TUI" [ "$TUI" -eq 0 ]
 assert "NO_COLOR empties color vars" [ -z "$C_CYAN" ]
 
 unset NO_COLOR
-tui_init   # stdout is not a tty under test either → TUI stays 0
+tui_init >/dev/null   # stdout is not a tty under test either → TUI stays 0
 assert "non-tty disables TUI" [ "$TUI" -eq 0 ]
+TUI=0
 
 # --- Task 2: confirm ---
 assert "confirm: empty input = yes" confirm "Q" <<< ""

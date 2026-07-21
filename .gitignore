@@ -19,4 +19,5 @@ node_modules/
 .cache/
 .local/
 .idea/
+.superpowers/
 Thumbs.db
