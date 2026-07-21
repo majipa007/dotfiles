@@ -35,6 +35,59 @@ BANNER
   printf '%s  %sone command, whole setup%s\n\n' "$C_RESET" "$C_DIM" "$C_RESET"
 }
 
+confirm() {
+  local question="$1" answer
+  printf '%s%s%s [Y/n]: ' "$C_BOLD" "$question" "$C_RESET"
+  read -r answer || answer=""
+  case "$answer" in
+    n|N|no|NO) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+# menu_multiselect "Title" names descs sel
+# names/descs/sel are array NAMES (namerefs). sel holds 0/1 per item, updated in place.
+# Keys: up/down or k/j move, space toggle, a all, Enter confirm.
+menu_multiselect() {
+  local title="$1"
+  local -n _mm_names="$2" _mm_descs="$3" _mm_sel="$4"
+  local count="${#_mm_names[@]}"
+  local cur=0 i key key2 mark pointer
+
+  tput civis 2>/dev/null || true
+  while true; do
+    printf '%s%s%s  %s(space: toggle, a: all, enter: confirm)%s\n' \
+      "$C_BOLD" "$title" "$C_RESET" "$C_DIM" "$C_RESET"
+    for ((i = 0; i < count; i++)); do
+      mark="[ ]"
+      [[ "${_mm_sel[$i]}" -eq 1 ]] && mark="[${C_GREEN}x${C_RESET}]"
+      pointer="  "
+      [[ "$i" -eq "$cur" ]] && pointer="${C_CYAN}❯ ${C_RESET}"
+      printf ' %b%b %s  %s%s%s\n' \
+        "$pointer" "$mark" "${_mm_names[$i]}" "$C_DIM" "${_mm_descs[$i]}" "$C_RESET"
+    done
+
+    if ! IFS= read -rsn1 key; then
+      break  # EOF (piped input ran out) — accept current selection
+    fi
+    if [[ "$key" == $'\033' ]]; then
+      key2=""
+      read -rsn2 -t 0.05 key2 || true
+      key="esc:$key2"
+    fi
+    case "$key" in
+      "esc:[A"|k) cur=$(( (cur - 1 + count) % count )) ;;
+      "esc:[B"|j) cur=$(( (cur + 1) % count )) ;;
+      " ")        _mm_sel[$cur]=$(( 1 - _mm_sel[$cur] )) ;;
+      a)          for ((i = 0; i < count; i++)); do _mm_sel[$i]=1; done ;;
+      "")         break ;;
+    esac
+    # redraw in place: cursor up over title + items, clear to end
+    printf '\033[%dA\033[J' "$((count + 1))"
+  done
+  tput cnorm 2>/dev/null || true
+}
+
 INSTALL_ZSH=1
 INSTALL_TMUX=1
 INSTALL_NVIM=1
