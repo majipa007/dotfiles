@@ -3,6 +3,38 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+TUI=0
+C_RESET="" C_BOLD="" C_DIM="" C_CYAN="" C_GREEN="" C_RED="" C_YELLOW=""
+
+tui_init() {
+  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    TUI=1
+    C_RESET=$'\033[0m'
+    C_BOLD=$'\033[1m'
+    C_DIM=$'\033[2m'
+    C_CYAN=$'\033[36m'
+    C_GREEN=$'\033[32m'
+    C_RED=$'\033[31m'
+    C_YELLOW=$'\033[33m'
+  else
+    TUI=0
+    C_RESET="" C_BOLD="" C_DIM="" C_CYAN="" C_GREEN="" C_RED="" C_YELLOW=""
+  fi
+}
+
+banner() {
+  [[ "$TUI" -eq 1 ]] || return 0
+  printf '%s' "${C_CYAN}${C_BOLD}"
+  cat <<'BANNER'
+     _       _    __ _ _
+  __| | ___ | |_ / _(_) | ___  ___
+ / _` |/ _ \| __| |_| | |/ _ \/ __|
+| (_| | (_) | |_|  _| | |  __/\__ \
+ \__,_|\___/ \__|_| |_|_|\___||___/
+BANNER
+  printf '%s  %sone command, whole setup%s\n\n' "$C_RESET" "$C_DIM" "$C_RESET"
+}
+
 INSTALL_ZSH=1
 INSTALL_TMUX=1
 INSTALL_NVIM=1
@@ -256,6 +288,9 @@ set_default_shell() {
 }
 
 main() {
+  tui_init
+  banner
+
   ASSUME_ALL=0
   local arg
   for arg in "$@"; do
@@ -327,4 +362,6 @@ main() {
   printf "sh setup completed\n"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi
