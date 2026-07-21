@@ -238,6 +238,60 @@ show_summary() {
   confirm "Proceed"
 }
 
+LOG_FILE="${TMPDIR:-/tmp}/dotfiles-install.log"
+
+prime_sudo() {
+  if [[ "${EUID}" -ne 0 ]]; then
+    printf '%sSome steps need sudo.%s\n' "$C_DIM" "$C_RESET"
+    sudo -v
+  fi
+}
+
+run_step() {
+  local desc="$1"
+  shift
+  if [[ "$TUI" -eq 1 ]]; then
+    printf ' %s…%s %s' "$C_YELLOW" "$C_RESET" "$desc"
+    if "$@" >>"$LOG_FILE" 2>&1; then
+      printf '\r %s✓%s %s \n' "$C_GREEN" "$C_RESET" "$desc"
+    else
+      printf '\r %s✗%s %s \n' "$C_RED" "$C_RESET" "$desc"
+      printf '%sLast lines of %s:%s\n' "$C_DIM" "$LOG_FILE" "$C_RESET"
+      tail -n 15 "$LOG_FILE"
+      exit 1
+    fi
+  else
+    log "$desc"
+    "$@"
+  fi
+}
+
+link_selected_dotfiles() {
+  mkdir -p "$HOME/.local/bin"
+
+  if [[ "$INSTALL_ZSH" -eq 1 ]]; then
+    link_file "$ROOT_DIR/zsh/.zshrc" "$HOME/.zshrc"
+    link_file "$ROOT_DIR/zsh/.zprofile" "$HOME/.zprofile"
+    mkdir -p "$HOME/omp-config"
+    link_file "$ROOT_DIR/omp-config/myconfig.json" "$HOME/omp-config/myconfig.json"
+  fi
+
+  if [[ "$INSTALL_TMUX" -eq 1 ]]; then
+    link_file "$ROOT_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+    link_file "$ROOT_DIR/tmux/start-workspace.sh" "$HOME/.local/bin/start-tmux-workspace"
+  fi
+
+  if [[ "$INSTALL_NVIM" -eq 1 ]]; then
+    mkdir -p "$HOME/.config"
+    link_file "$ROOT_DIR/nvim" "$HOME/.config/nvim"
+  fi
+
+  if [[ "$INSTALL_OPENCODE" -eq 1 ]]; then
+    mkdir -p "$HOME/.config/opencode"
+    link_file "$ROOT_DIR/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+  fi
+}
+
 write_tab_config() {
   local -n _wt_tabs="$1"
   local config="$HOME/.tmux-workspace.conf"
@@ -433,62 +487,42 @@ main() {
     exit 0
   fi
 
-  install_base_packages
+  : > "$LOG_FILE"
+  prime_sudo
+
+  run_step "Installing base packages" install_base_packages
 
   if [[ "$INSTALL_NVIM" -eq 1 ]]; then
-    install_latest_neovim
+    run_step "Installing Neovim" install_latest_neovim
   fi
   if [[ "$INSTALL_ZSH" -eq 1 ]]; then
-    install_oh_my_zsh
-    install_oh_my_posh
+    run_step "Installing Oh My Zsh + plugins" install_oh_my_zsh
+    run_step "Installing Oh My Posh" install_oh_my_posh
   fi
   if [[ "$INSTALL_OPENCODE" -eq 1 ]]; then
-    install_opencode
+    run_step "Installing OpenCode" install_opencode
   fi
   if [[ "$INSTALL_CLAUDE" -eq 1 ]]; then
-    install_claude_code
+    run_step "Installing Claude Code" install_claude_code
   fi
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
-    install_tpm
+    run_step "Installing TPM" install_tpm
   fi
 
-  log "Linking dotfiles"
-  mkdir -p "$HOME/.local/bin"
-
-  if [[ "$INSTALL_ZSH" -eq 1 ]]; then
-    link_file "$ROOT_DIR/zsh/.zshrc" "$HOME/.zshrc"
-    link_file "$ROOT_DIR/zsh/.zprofile" "$HOME/.zprofile"
-    mkdir -p "$HOME/omp-config"
-    link_file "$ROOT_DIR/omp-config/myconfig.json" "$HOME/omp-config/myconfig.json"
-  fi
+  run_step "Linking dotfiles" link_selected_dotfiles
 
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
-    link_file "$ROOT_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-    link_file "$ROOT_DIR/tmux/start-workspace.sh" "$HOME/.local/bin/start-tmux-workspace"
-  fi
-
-  if [[ "$INSTALL_NVIM" -eq 1 ]]; then
-    mkdir -p "$HOME/.config"
-    link_file "$ROOT_DIR/nvim" "$HOME/.config/nvim"
-  fi
-
-  if [[ "$INSTALL_OPENCODE" -eq 1 ]]; then
-    mkdir -p "$HOME/.config/opencode"
-    link_file "$ROOT_DIR/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
-  fi
-
-  if [[ "$INSTALL_TMUX" -eq 1 ]]; then
-    install_tmux_plugins
+    run_step "Installing tmux plugins" install_tmux_plugins
   fi
   if [[ "$INSTALL_NVIM" -eq 1 ]]; then
-    bootstrap_nvim_plugins
+    run_step "Bootstrapping LazyVim plugins" bootstrap_nvim_plugins
   fi
   if [[ "$INSTALL_ZSH" -eq 1 ]]; then
     set_default_shell
   fi
 
-  log "Done. Restart terminal or run: exec zsh"
-  printf "sh setup completed\n"
+  printf '\n%s✓ Done.%s Restart terminal or run: %sexec zsh%s\n' \
+    "$C_GREEN$C_BOLD" "$C_RESET" "$C_CYAN" "$C_RESET"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

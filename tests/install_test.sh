@@ -63,6 +63,10 @@ assert "map: nvim on"     [ "$INSTALL_NVIM" -eq 1 ]
 assert "map: opencode off" [ "$INSTALL_OPENCODE" -eq 0 ]
 assert "map: claude on"   [ "$INSTALL_CLAUDE" -eq 1 ]
 
+# --- Task 6: run_step (non-TUI path: TUI=0 under test) ---
+assert "run_step runs command" run_step "true step" true
+assert "run_step propagates failure" bash -c 'source ./install.sh; ! (run_step "false step" false)'
+
 # --- Task 4: write_tab_config ---
 export HOME="$(mktemp -d)"
 tabs=("editor:nvim" "logs" "mon:btop")
