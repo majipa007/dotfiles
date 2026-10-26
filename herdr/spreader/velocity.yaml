@@ -1,0 +1,20 @@
+# One workspace, apply with: herdr-spreader apply -f ~/.config/herdr-spreader/velocity.yaml
+workspaces:
+  - name: velocity
+    root: "/home/sukuna/test-velocity"
+    tabs:
+      - label: claude
+        panes:
+          - command: claude --dangerously-skip-permissions -c
+      - label: nvim
+        panes:
+          - command: nvim .
+      - label: terminal
+        panes:
+          - {}
+      - label: server
+        panes:
+          - command: cd apps/api
+          - split: right
+            ratio: 0.5
+            command: cd apps/web

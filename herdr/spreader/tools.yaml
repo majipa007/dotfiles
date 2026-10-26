@@ -1,0 +1,22 @@
+# Applied automatically from ~/.zshrc on a herdr cold start.
+# By hand: herdr-spreader apply -f ~/.config/herdr-spreader/tools.yaml
+workspaces:
+  - name: tools
+    root: ~
+    focus: true
+    tabs:
+      - label: todo
+        panes:
+          - command: gotodo
+      - label: monitoring
+        panes:
+          - command: btop
+      - label: terminal
+        panes:
+          - {}
+      - label: nodder
+        panes:
+          - command: nodder run
+      - label: assistant
+        panes:
+          - command: cd ~/assistant && claude -c

@@ -1,0 +1,14 @@
+# One workspace, apply with: herdr-spreader apply -f ~/.config/herdr-spreader/pluto.yaml
+workspaces:
+  - name: pluto
+    root: '/home/sukuna/projects/HF/Pluto_repo'
+    tabs:
+      - label: claude
+        panes:
+          - command: claude --dangerously-skip-permissions -c
+      - label: nvim
+        panes:
+          - command: nvim .
+      - label: terminal
+        panes:
+          - {}

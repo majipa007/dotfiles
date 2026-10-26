@@ -1,0 +1,17 @@
+# One workspace, apply with: herdr-spreader apply -f ~/.config/herdr-spreader/axiom.yaml
+workspaces:
+  - name: axiom
+    root: "/home/sukuna/projects/Axiom"
+    tabs:
+      - label: nvim
+        panes:
+          - command: source .venv/bin/activate && nvim .
+      - label: terminal
+        panes:
+          - command: source .venv/bin/activate
+      - label: server
+        panes:
+          - command: source .venv/bin/activate
+      - label: monitoring
+        panes:
+          - command: btop

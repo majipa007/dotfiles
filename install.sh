@@ -101,6 +101,7 @@ INSTALL_TMUX=1
 INSTALL_NVIM=1
 INSTALL_OPENCODE=1
 INSTALL_CLAUDE=1
+INSTALL_HERDR=1
 
 log() {
   printf "\n[dotfiles] %s\n" "$1"
@@ -145,13 +146,14 @@ is_interactive() {
   [[ "${ASSUME_ALL}" -eq 0 ]] && [[ -t 0 ]]
 }
 
-COMPONENT_NAMES=(zsh tmux neovim opencode claude)
+COMPONENT_NAMES=(zsh tmux neovim opencode claude herdr)
 COMPONENT_DESCS=(
   "Oh My Zsh, plugins, Oh My Posh prompt"
   "config, TPM plugins, workspace tabs"
   "latest release + LazyVim config"
   "OpenCode CLI"
   "Claude Code CLI"
+  "agent workspace manager + spreader layouts"
 )
 
 apply_component_selection() {
@@ -161,10 +163,11 @@ apply_component_selection() {
   INSTALL_NVIM="${_cs_sel[2]}"
   INSTALL_OPENCODE="${_cs_sel[3]}"
   INSTALL_CLAUDE="${_cs_sel[4]}"
+  INSTALL_HERDR="${_cs_sel[5]}"
 }
 
 select_components_menu() {
-  local sel=(1 1 1 1 1)
+  local sel=(1 1 1 1 1 1)
   menu_multiselect "Select components to install" COMPONENT_NAMES COMPONENT_DESCS sel
   apply_component_selection sel
 }
@@ -178,6 +181,7 @@ Select components to install:
   3) neovim    latest release, LazyVim config
   4) opencode  OpenCode CLI
   5) claude    Claude Code CLI
+  6) herdr     agent workspace manager, spreader layouts
 EOF
   printf "Enter numbers separated by spaces, or press Enter for all: "
   local selection token
@@ -189,6 +193,7 @@ EOF
   INSTALL_NVIM=0
   INSTALL_OPENCODE=0
   INSTALL_CLAUDE=0
+  INSTALL_HERDR=0
   for token in ${selection//,/ }; do
     case "$token" in
       1) INSTALL_ZSH=1 ;;
@@ -196,6 +201,7 @@ EOF
       3) INSTALL_NVIM=1 ;;
       4) INSTALL_OPENCODE=1 ;;
       5) INSTALL_CLAUDE=1 ;;
+      6) INSTALL_HERDR=1 ;;
       *) log "Ignoring unknown selection: $token" ;;
     esac
   done
@@ -227,6 +233,7 @@ show_summary() {
   summary_line "$INSTALL_NVIM" "Neovim + LazyVim"
   summary_line "$INSTALL_OPENCODE" "OpenCode CLI"
   summary_line "$INSTALL_CLAUDE" "Claude Code CLI"
+  summary_line "$INSTALL_HERDR" "herdr + spreader layouts"
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
     if [[ -f "$HOME/.tmux-workspace.conf" ]]; then
       printf '  %s✓%s tmux tabs: %s~/.tmux-workspace.conf%s\n' "$C_GREEN" "$C_RESET" "$C_CYAN" "$C_RESET"
@@ -290,6 +297,13 @@ link_selected_dotfiles() {
     mkdir -p "$HOME/.config/opencode"
     link_file "$ROOT_DIR/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
   fi
+
+  if [[ "$INSTALL_HERDR" -eq 1 ]]; then
+    mkdir -p "$HOME/.config/herdr"
+    link_file "$ROOT_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    link_file "$ROOT_DIR/herdr/spreader" "$HOME/.config/herdr-spreader"
+    link_file "$ROOT_DIR/herdr/setup-workspaces.sh" "$HOME/.local/bin/herdr-workspaces"
+  fi
 }
 
 write_tab_config() {
@@ -349,6 +363,7 @@ install_base_packages() {
   )
   [[ "$INSTALL_ZSH" -eq 1 ]] && packages+=(zsh)
   [[ "$INSTALL_TMUX" -eq 1 ]] && packages+=(tmux)
+  [[ "$INSTALL_HERDR" -eq 1 ]] && packages+=(jq)
 
   need_sudo apt update
   need_sudo apt install -y "${packages[@]}"
@@ -435,6 +450,15 @@ install_claude_code() {
   fi
 }
 
+install_herdr() {
+  if ! command -v herdr >/dev/null 2>&1; then
+    log "Installing herdr"
+    curl -fsSL https://herdr.dev/install.sh | sh
+  else
+    log "herdr already installed"
+  fi
+}
+
 install_tpm() {
   if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
     log "Installing TPM"
@@ -504,6 +528,9 @@ main() {
   fi
   if [[ "$INSTALL_CLAUDE" -eq 1 ]]; then
     run_step "Installing Claude Code" install_claude_code
+  fi
+  if [[ "$INSTALL_HERDR" -eq 1 ]]; then
+    run_step "Installing herdr" install_herdr
   fi
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
     run_step "Installing TPM" install_tpm

@@ -9,10 +9,11 @@ your config stays in version control.
 | Component | What you get |
 |-----------|--------------|
 | **zsh** | Oh My Zsh, autosuggestions, syntax highlighting, Oh My Posh prompt |
-| **tmux** | Custom config, TPM plugins, auto-started workspace with your tabs |
+| **tmux** | Custom config, TPM plugins, workspace launcher with your tabs |
 | **neovim** | Latest stable release + LazyVim configuration |
 | **opencode** | OpenCode CLI with baseline config |
 | **claude** | Claude Code CLI |
+| **herdr** | herdr workspace manager, config, herdr-spreader layouts, auto-start |
 
 Base CLI tools (`git`, `curl`, `ripgrep`, `fzf`, `fd`, `btop`, `eza`, …) are
 installed regardless of what you pick.
@@ -44,10 +45,30 @@ bash install.sh --all
 Piped runs like `curl ... | bash` behave the same way, so the classic one-shot
 bootstrap still works.
 
+## herdr
+
+New local terminals automatically drop you into [herdr](https://herdr.dev)
+(when it's installed). On a cold start the `tools` workspace from
+`herdr/spreader/tools.yaml` is laid out for you; later terminals just attach.
+Open other workspaces by hand:
+
+```bash
+herdr-spreader apply -f ~/.config/herdr-spreader/<name>.yaml
+```
+
+The installer links `herdr/config.toml` to `~/.config/herdr/config.toml`,
+`herdr/spreader/` to `~/.config/herdr-spreader/`, and
+`herdr/setup-workspaces.sh` to `herdr-workspaces`.
+
+herdr plugins (`herdr-spreader`, `herdr-navigator`) aren't installed by the
+script — add them through herdr after the first launch.
+
+Add `export AUTO_HERDR=0` to `~/.zshrc.local` to stop the auto-start.
+
 ## The tmux workspace
 
-New local terminals automatically drop you into a tmux session with your tabs
-ready to go. The default layout:
+tmux no longer auto-starts (herdr does). Launch the workspace with
+`start-tmux-workspace`. The default layout:
 
 | Tab | Name | Runs |
 |-----|------|------|
@@ -89,12 +110,6 @@ Good to know:
 - No config file at all? The launcher falls back to the default layout above.
 - Edit the file any time — changes apply to the next session you start.
 
-### Opting out
-
-Add `export AUTO_TMUX=0` to `~/.zshrc.local` to stop terminals from
-auto-starting tmux. You can still launch the workspace manually with
-`start-tmux-workspace`.
-
 ## Machine-specific config
 
 Secrets, tokens, and host-only paths belong in `~/.zshrc.local` — it's sourced
@@ -107,6 +122,7 @@ point.
 install.sh                        installer (interactive or --all)
 zsh/                              .zshrc, .zprofile, .zshrc.local.example
 tmux/                             .tmux.conf, workspace launcher + tab template
+herdr/                            herdr config, spreader layouts, workspace script
 nvim/                             LazyVim config (linked to ~/.config/nvim)
 omp-config/                       Oh My Posh theme
 opencode/                         OpenCode config
@@ -115,5 +131,5 @@ opencode/                         OpenCode config
 ## After installing
 
 Restart your terminal or run `exec zsh`. That's it — the shell switches to
-zsh, tmux starts with your tabs, and everything is linked back to this repo,
+zsh, herdr starts with your tools workspace, and everything is linked back to this repo,
 so `git pull` updates your config everywhere.

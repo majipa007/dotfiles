@@ -1,0 +1,20 @@
+# One workspace, apply with: herdr-spreader apply -f ~/.config/herdr-spreader/sluice.yaml
+workspaces:
+  - name: sluice
+    root: "/mnt/c/Users/SulavKumarShresta/OneDrive - In.Corp Global Pte. Ltd/Documents/personal_projects/sluice"
+    tabs:
+      - label: coding
+        panes:
+          - command: nvim .
+          - split: right
+            ratio: 0.75
+            command: claude --dangerously-skip-permissions -c
+      - label: terminal
+        panes:
+          - {}
+      - label: server
+        panes:
+          - command: make run
+      - label: services
+        panes:
+          - command: make services

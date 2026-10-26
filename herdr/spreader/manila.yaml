@@ -1,0 +1,19 @@
+# One workspace, apply with: herdr-spreader apply -f ~/.config/herdr-spreader/manila.yaml
+workspaces:
+  - name: manila
+    root: "/mnt/c/Users/SulavKumarShresta/OneDrive - In.Corp Global Pte. Ltd/Documents/PH/PH-Liquidation-Management-Backend"
+    tabs:
+      - label: code
+        panes:
+          - command: nvim .
+          - split: right
+            ratio: 0.75
+            command: claude -c
+
+      - label: terminal
+        panes:
+          - {}
+
+      - label: server
+        panes:
+          - command: make run
