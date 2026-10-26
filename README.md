@@ -14,6 +14,8 @@ your config stays in version control.
 | **opencode** | OpenCode CLI with baseline config |
 | **claude** | Claude Code CLI |
 | **herdr** | herdr workspace manager, config, herdr-spreader layouts, auto-start |
+| **deadline** | `gotodo` kanban board + agent skill, via its official installer |
+| **nodder** | Auto-answers Claude Code prompts across herdr panes (needs herdr) |
 
 Base CLI tools (`git`, `curl`, `ripgrep`, `fzf`, `fd`, `btop`, `eza`, …) are
 installed regardless of what you pick.

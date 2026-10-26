@@ -56,7 +56,7 @@ menu_multiselect "Pick" names descs sel < <(printf '\033 \n')  # bare ESC, then 
 assert "menu: key after bare ESC not swallowed" [ "${sel[0]}${sel[1]}${sel[2]}" = "100" ]
 
 # --- Task 3: apply_component_selection ---
-sel=(1 0 1 0 1 0)
+sel=(1 0 1 0 1 0 1 0)
 apply_component_selection sel
 assert "map: zsh on"      [ "$INSTALL_ZSH" -eq 1 ]
 assert "map: tmux off"    [ "$INSTALL_TMUX" -eq 0 ]
@@ -64,10 +64,15 @@ assert "map: nvim on"     [ "$INSTALL_NVIM" -eq 1 ]
 assert "map: opencode off" [ "$INSTALL_OPENCODE" -eq 0 ]
 assert "map: claude on"   [ "$INSTALL_CLAUDE" -eq 1 ]
 assert "map: herdr off"   [ "$INSTALL_HERDR" -eq 0 ]
+assert "map: deadline on" [ "$INSTALL_DEADLINE" -eq 1 ]
+assert "map: nodder off"  [ "$INSTALL_NODDER" -eq 0 ]
 
 INSTALL_HERDR=1
-select_components_basic <<< "6" >/dev/null
-assert "basic: 6 picks herdr only" [ "$INSTALL_HERDR$INSTALL_ZSH$INSTALL_CLAUDE" = "100" ]
+select_components_basic <<< "6 8" >/dev/null
+assert "basic: 6 8 picks herdr + nodder only" \
+  [ "$INSTALL_HERDR$INSTALL_NODDER$INSTALL_DEADLINE$INSTALL_ZSH" = "1100" ]
+
+assert "nodder skips without herdr" bash -c 'source ./install.sh; PATH=/nonexistent; install_nodder'
 
 # --- Task 6: run_step (non-TUI path: TUI=0 under test) ---
 assert "run_step runs command" run_step "true step" true

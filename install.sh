@@ -102,6 +102,8 @@ INSTALL_NVIM=1
 INSTALL_OPENCODE=1
 INSTALL_CLAUDE=1
 INSTALL_HERDR=1
+INSTALL_DEADLINE=1
+INSTALL_NODDER=1
 
 log() {
   printf "\n[dotfiles] %s\n" "$1"
@@ -146,7 +148,7 @@ is_interactive() {
   [[ "${ASSUME_ALL}" -eq 0 ]] && [[ -t 0 ]]
 }
 
-COMPONENT_NAMES=(zsh tmux neovim opencode claude herdr)
+COMPONENT_NAMES=(zsh tmux neovim opencode claude herdr deadline nodder)
 COMPONENT_DESCS=(
   "Oh My Zsh, plugins, Oh My Posh prompt"
   "config, TPM plugins, workspace tabs"
@@ -154,6 +156,8 @@ COMPONENT_DESCS=(
   "OpenCode CLI"
   "Claude Code CLI"
   "agent workspace manager + spreader layouts"
+  "gotodo kanban board + agent skill"
+  "auto-answers Claude prompts in herdr"
 )
 
 apply_component_selection() {
@@ -164,10 +168,12 @@ apply_component_selection() {
   INSTALL_OPENCODE="${_cs_sel[3]}"
   INSTALL_CLAUDE="${_cs_sel[4]}"
   INSTALL_HERDR="${_cs_sel[5]}"
+  INSTALL_DEADLINE="${_cs_sel[6]}"
+  INSTALL_NODDER="${_cs_sel[7]}"
 }
 
 select_components_menu() {
-  local sel=(1 1 1 1 1 1)
+  local sel=(1 1 1 1 1 1 1 1)
   menu_multiselect "Select components to install" COMPONENT_NAMES COMPONENT_DESCS sel
   apply_component_selection sel
 }
@@ -182,6 +188,8 @@ Select components to install:
   4) opencode  OpenCode CLI
   5) claude    Claude Code CLI
   6) herdr     agent workspace manager, spreader layouts
+  7) deadline  gotodo kanban board, agent skill
+  8) nodder    auto-answers Claude prompts in herdr
 EOF
   printf "Enter numbers separated by spaces, or press Enter for all: "
   local selection token
@@ -194,6 +202,8 @@ EOF
   INSTALL_OPENCODE=0
   INSTALL_CLAUDE=0
   INSTALL_HERDR=0
+  INSTALL_DEADLINE=0
+  INSTALL_NODDER=0
   for token in ${selection//,/ }; do
     case "$token" in
       1) INSTALL_ZSH=1 ;;
@@ -202,6 +212,8 @@ EOF
       4) INSTALL_OPENCODE=1 ;;
       5) INSTALL_CLAUDE=1 ;;
       6) INSTALL_HERDR=1 ;;
+      7) INSTALL_DEADLINE=1 ;;
+      8) INSTALL_NODDER=1 ;;
       *) log "Ignoring unknown selection: $token" ;;
     esac
   done
@@ -234,6 +246,8 @@ show_summary() {
   summary_line "$INSTALL_OPENCODE" "OpenCode CLI"
   summary_line "$INSTALL_CLAUDE" "Claude Code CLI"
   summary_line "$INSTALL_HERDR" "herdr + spreader layouts"
+  summary_line "$INSTALL_DEADLINE" "deadline (gotodo)"
+  summary_line "$INSTALL_NODDER" "nodder"
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
     if [[ -f "$HOME/.tmux-workspace.conf" ]]; then
       printf '  %s✓%s tmux tabs: %s~/.tmux-workspace.conf%s\n' "$C_GREEN" "$C_RESET" "$C_CYAN" "$C_RESET"
@@ -459,6 +473,27 @@ install_herdr() {
   fi
 }
 
+# Upstream installer is idempotent: it rebuilds only when main moved, and its
+# PATH line is already in zsh/.zshrc so it won't append another.
+install_deadline() {
+  log "Installing deadline (gotodo)"
+  curl -fsSL https://raw.githubusercontent.com/19Naveen/deadline/main/install.sh | bash
+}
+
+# nodder drives the herdr CLI and its installer refuses to run without it.
+install_nodder() {
+  if ! command -v herdr >/dev/null 2>&1; then
+    log "Skipping nodder: herdr not installed"
+    return 0
+  fi
+  log "Installing nodder"
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+  GIT_TERMINAL_PROMPT=0 git clone --depth 1 https://github.com/majipa007/Nodder.git "$tmp_dir/nodder"
+  "$tmp_dir/nodder/install.sh"
+  rm -rf "$tmp_dir"
+}
+
 install_tpm() {
   if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
     log "Installing TPM"
@@ -513,6 +548,8 @@ main() {
 
   : > "$LOG_FILE"
   prime_sudo
+  # herdr, claude, gotodo land here; later steps (nodder) need to find them
+  export PATH="$HOME/.local/bin:$PATH"
 
   run_step "Installing base packages" install_base_packages
 
@@ -531,6 +568,12 @@ main() {
   fi
   if [[ "$INSTALL_HERDR" -eq 1 ]]; then
     run_step "Installing herdr" install_herdr
+  fi
+  if [[ "$INSTALL_DEADLINE" -eq 1 ]]; then
+    run_step "Installing deadline" install_deadline
+  fi
+  if [[ "$INSTALL_NODDER" -eq 1 ]]; then
+    run_step "Installing nodder" install_nodder
   fi
   if [[ "$INSTALL_TMUX" -eq 1 ]]; then
     run_step "Installing TPM" install_tpm
