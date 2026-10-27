@@ -183,8 +183,8 @@ Unknown keys are rejected. Other keys: `env:` (workspace or pane), `cwd:`
 ## Gotchas
 
 - **Bare `root: ~` is YAML null, not home.** spreader then falls back to the
-  directory it was launched from. Write `root: "~"` instead. `tools.yaml` currently
-  has the bare form. `--dry-run` shows the resolved `--cwd`.
+  directory it was launched from. Write `root: "~"` instead. `--dry-run` shows
+  the resolved `--cwd`.
 - **Use `-f`, not the plugin menu's "Apply layout".** The menu action reads
   `~/.config/herdr/plugins/config/herdr-spreader/config.yaml`, which isn't part of this setup.
 - **No dedupe.** Applying the same YAML twice creates two workspaces with the same

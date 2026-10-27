@@ -2,7 +2,7 @@
 # By hand: herdr-spreader apply -f ~/.config/herdr-spreader/tools.yaml
 workspaces:
   - name: tools
-    root: ~
+    root: "~"
     focus: true
     tabs:
       - label: todo
